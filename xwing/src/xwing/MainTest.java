@@ -7,11 +7,6 @@ package xwing;
 public class MainTest {
     public static void main(String[] args) {
         CallgraphParser test = new CallgraphParser();
-     //   test.RemoveJava("result1.txt");
-      //  test.RemoveDuplicates("result1.txt");
-       // test.SplitClassesMethods("result1.txt");
-      //  test.Added("result1.txt", "result2.txt");
-     //   test.Removed("result1.txt", "result2.txt");
 
         String[] result1 = test.SplitClassesMethods(test.RemoveDuplicates(test.RemoveJava("result1.txt")));
         String method1 = result1[0];
@@ -21,5 +16,6 @@ public class MainTest {
 
         test.Added(method1, method2);
         test.Removed(method1, method2);
+        test.CallgraphToJSON("methods-noDups-noJava-result1.txt-added-methods-noDups-noJava-result2.txt");
     }
 }

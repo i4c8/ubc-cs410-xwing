@@ -1,17 +1,63 @@
 package xwing;
+import com.google.gson.*;
+
 
 import java.io.*;
 import java.util.HashSet;
+
+
 
 
 public class CallgraphParser implements Parser<Object> {
 
     private BufferedReader br;
     private BufferedWriter bw;
-    private BufferedWriter bw2;
 
     public CallgraphParser(){
     }
+
+    public String CallgraphToJSON(String file){
+        String append = ".json";
+        String fileName = file.concat(append);
+
+        String line;
+        String[] sourceAndTarget;
+        String[] sourceClassMethod;
+        String[] targetClassMethod;
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        CallTree tree = new CallTree();
+
+        try {
+            br = new BufferedReader(new FileReader(file));
+            bw = new BufferedWriter(new FileWriter(fileName));
+            while ((line = br.readLine()) != null){
+                //Splits each line into Source and Target
+                //Then splits each of those into Class and Method
+                sourceAndTarget = line.split("\\s");
+                sourceClassMethod = sourceAndTarget[0].split(":");
+                targetClassMethod = sourceAndTarget[1].split(":");
+
+                //Builds up the tree used by GSON to create the JSON
+                tree.addMethod(sourceClassMethod[2]);
+                tree.addMethod(targetClassMethod[1]);
+                tree.addClass(sourceClassMethod[1]);
+                tree.addClass(targetClassMethod[0].split("\\)")[1]);
+                tree.addMethodToClass(sourceClassMethod[1], sourceClassMethod[2]);
+                tree.addMethodToClass(targetClassMethod[0].split("\\)")[1], targetClassMethod[1]);
+                tree.addConnection(sourceClassMethod[2], targetClassMethod[1]);
+            }
+            String jsonOutput = gson.toJson(tree);
+            bw.write(jsonOutput);
+            br.close();
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileName;
+    }
+
+
 
     //Creates a new file removing any default java classes and methods from the result
     //@return the filename of the result
@@ -48,13 +94,13 @@ public class CallgraphParser implements Parser<Object> {
         try {
             br = new BufferedReader(new FileReader(file));
             bw = new BufferedWriter(new FileWriter(fileNames[0]));
-            bw2 = new BufferedWriter(new FileWriter(fileNames[1]));
+            BufferedWriter bw2 = new BufferedWriter(new FileWriter(fileNames[1]));
             while ((line = br.readLine()) != null){
                 if (line.charAt(0)=='M'){
                     bw.write(line+"\n");
                 }
                 else {
-                    bw2.write(line+"\n");
+                    bw2.write(line + "\n");
                 }
             }
             bw.close();
