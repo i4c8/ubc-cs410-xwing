@@ -1,18 +1,11 @@
 package xwing;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-
-import gr.gousiosg.javacg.stat.ClassVisitor;
 import gr.gousiosg.javacg.stat.JCallGraph;
-import gr.gousiosg.javacg.stat.MethodVisitor;
 
 public class DataService {
 	
@@ -27,16 +20,18 @@ public class DataService {
 		//System.out.println("Specify .jar name: ");
 		
 		// Call java-callgraph
-		File result = null;
 		try {
 			
-			result = runCallGraph(args, "result.txt");
+			File result = runCallGraph(args, "result.txt");
 			//System.out.print("\r\n\r\n" + "printing Results: ");
 			//System.out.println(result);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		// We've got a file with the results of a call to java-callgraph
+		// Now we do something with it...
 		
 	}
 	
