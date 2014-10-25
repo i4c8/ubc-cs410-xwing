@@ -6,11 +6,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import gr.gousiosg.javacg.stat.JCallGraph;
+import org.eclipse.jgit.*;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+
 
 public class DataService {
 	
-	// Main Method
-	/**
+	/** MAIN METHOD
 	 * @param args - Specified .jar file at runtime in console. 
 	 */
 	public static void main(String[] args){
@@ -70,6 +75,26 @@ public class DataService {
 	    
 		return result;
 		
+	}
+	
+	//TODO
+	private static void getGit(){
+		//Repository repo;
+		Git git = new Git(null);
+	}
+	
+	private static void walkRepo(){
+		// TODO Figure out how to access the outside repo we want to analyze
+		Repository repo = null;
+		RevWalk walk = new RevWalk(repo);
+		
+		for(RevCommit commit : walk){
+			// TODO We need to compile the commit to a jar somehow and run it through callgraph
+			System.out.println("Commit name: " + commit.getName());
+		}
+		
+		// Cleanup
+		walk.dispose();
 	}
 	
 
