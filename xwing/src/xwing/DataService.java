@@ -13,12 +13,12 @@ public class DataService {
 	// Main method
 	public static void main(String[] args){
 		
-		System.out.println("Hello world.");
+		System.out.println("Starting java-callgraph on JAR: " + args[0]);
 		
-		String[] argsOut = new String[5];
-		argsOut[0] = "javacg-0.1-SNAPSHOT-static.jar";
+		//String[] argsOut = new String[1];
+		//argsOut[0] = "/lib/javacg-0.1-SNAPSHOT-static.jar";
 		
-		JCallGraph.main(argsOut);
+		JCallGraph.main(args);
 		
 	}
 	
