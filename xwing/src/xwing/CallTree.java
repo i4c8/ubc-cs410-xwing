@@ -6,12 +6,12 @@ import java.util.ArrayList;
  * Created by Alex on 2014-10-24.
  */
 public class CallTree {
-    private ArrayList methods;
+    private ArrayList nodes;
     private ArrayList links;
     private ArrayList classes;
 
     public CallTree() {
-        methods = new ArrayList();
+        nodes = new ArrayList();
         links = new ArrayList();
         classes = new ArrayList();
     }
@@ -20,14 +20,14 @@ public class CallTree {
     public void addMethod(String method) {
         methodNode toAdd = new methodNode(method);
         boolean add = true;
-        for (Object method1 : methods) {
+        for (Object method1 : nodes) {
             methodNode toTest = (methodNode) method1;
             if (toAdd.equals(toTest)) {
                 add = false;
             }
         }
         if (add) {
-            methods.add(toAdd);
+            nodes.add(toAdd);
         }
     }
 
@@ -46,10 +46,10 @@ public class CallTree {
     }
 
     public void addConnection(String method1, String method2){
-        int index1 = methods.indexOf(method1);
-        int index2 = methods.indexOf(method2);
-        for (int i=0; i<methods.size(); i++){
-            methodNode toTest = (methodNode) methods.get(i);
+        int index1 = nodes.indexOf(method1);
+        int index2 = nodes.indexOf(method2);
+        for (int i=0; i<nodes.size(); i++){
+            methodNode toTest = (methodNode) nodes.get(i);
             if (toTest.getName().equals(method1)) {
                 index1 = i;
             }
@@ -64,8 +64,8 @@ public class CallTree {
 
         int methodIndex = -1;
         int classIndex = -1;
-        for (int i=0; i<methods.size(); i++){
-            methodNode toTest = (methodNode) methods.get(i);
+        for (int i=0; i<nodes.size(); i++){
+            methodNode toTest = (methodNode) nodes.get(i);
             if (toTest.getName().equals(methodName)) {
                 methodIndex = i;
                 break;
