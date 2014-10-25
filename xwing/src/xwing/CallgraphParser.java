@@ -1,7 +1,6 @@
 package xwing;
 import com.google.gson.*;
 
-
 import java.io.*;
 import java.util.HashSet;
 
@@ -12,7 +11,9 @@ public class CallgraphParser implements Parser<Object> {
 
     private BufferedReader br;
     private BufferedWriter bw;
-
+    private CallTree baseTree;
+    private CallTree newTree;
+    
     public CallgraphParser(){
     }
 
@@ -22,13 +23,15 @@ public class CallgraphParser implements Parser<Object> {
         String[] result = new String[toParse.length];
         for (int i=0; i<toParse.length; i++){
             if (i==0){
+            	baseTree = this.buildTree(this.splitClassesMethods(this.removeDuplicates(this.removeJava(toParse[i], i), i), i)[0]);
                 result[i] = this.callgraphToJSON(this.splitClassesMethods(this.removeDuplicates(this.removeJava(toParse[i], i), i), i)[0], i);
                 this.cleanUp(i);
             }
             else {
                 String file1 = this.splitClassesMethods(this.removeDuplicates(this.removeJava(toParse[i], i), i), i)[0];
                 String file2 = this.splitClassesMethods(this.removeDuplicates(this.removeJava(toParse[i-1], i-1), i-1), i-1)[0];
-                result[i] = this.callgraphToJSON(this.added(file2, file1), i);
+                newTree = this.treeUpdate(this.added(file2, file1));
+                result[i] = this.callTreeToJSON(newTree, i);
                 this.cleanUp(i, i-1);
             }
         }
@@ -50,46 +53,110 @@ public class CallgraphParser implements Parser<Object> {
         toDelete = new File("temp"+i+".methods");
         toDelete.delete();
     }
-
-    public String callgraphToJSON(String file, int callNumber){
-
-        String fileName = "result"+callNumber+".json";
-
+    
+    public CallTree treeUpdate(String file){
+    	
         String line;
         String[] sourceAndTarget;
         String[] sourceClassMethod;
         String[] targetClassMethod;
+      	
+        try {
+			br = new BufferedReader(new FileReader(file));        	
+			while ((line = br.readLine()) != null){
+				//Splits each line into Source and Target
+				//Then splits each of those into Class and Method
+				sourceAndTarget = line.split("\\s");
+				sourceClassMethod = sourceAndTarget[0].split(":");
+				targetClassMethod = sourceAndTarget[1].split(":");
 
+				//Builds up the tree used by GSON to create the JSON
+				baseTree.addMethod(sourceClassMethod[2]);
+				baseTree.addMethod(targetClassMethod[1]);
+				baseTree.addClass(sourceClassMethod[1]);
+				baseTree.addClass(targetClassMethod[0].split("\\)")[1]);
+				baseTree.addMethodToClass(sourceClassMethod[1], sourceClassMethod[2]);
+				baseTree.addMethodToClass(targetClassMethod[0].split("\\)")[1], targetClassMethod[1]);
+				baseTree.addConnection(sourceClassMethod[2], targetClassMethod[1]);
+            	
+			}
+			br.close();
+			} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return baseTree;    
+    }
+
+    public String callgraphToJSON(String file, int callNumber){
+
+        String fileName = "result"+callNumber+".json";
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         CallTree tree = new CallTree();
 
         try {
-            br = new BufferedReader(new FileReader(file));
+            tree = this.buildTree(file);
             bw = new BufferedWriter(new FileWriter(fileName));
-            while ((line = br.readLine()) != null){
-                //Splits each line into Source and Target
-                //Then splits each of those into Class and Method
-                sourceAndTarget = line.split("\\s");
-                sourceClassMethod = sourceAndTarget[0].split(":");
-                targetClassMethod = sourceAndTarget[1].split(":");
-
-                //Builds up the tree used by GSON to create the JSON
-                tree.addMethod(sourceClassMethod[2]);
-                tree.addMethod(targetClassMethod[1]);
-                tree.addClass(sourceClassMethod[1]);
-                tree.addClass(targetClassMethod[0].split("\\)")[1]);
-                tree.addMethodToClass(sourceClassMethod[1], sourceClassMethod[2]);
-                tree.addMethodToClass(targetClassMethod[0].split("\\)")[1], targetClassMethod[1]);
-                tree.addConnection(sourceClassMethod[2], targetClassMethod[1]);
-            }
             String jsonOutput = gson.toJson(tree);
             bw.write(jsonOutput);
-            br.close();
             bw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return fileName;
+    }
+    
+    public String callTreeToJSON(CallTree tree, int callNumber){
+    	String fileName = "result"+callNumber+".json";
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String jsonOutput = gson.toJson(tree);
+        
+        try {
+			bw = new BufferedWriter(new FileWriter(fileName));
+			bw.write(jsonOutput);
+			bw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        
+        return fileName;
+    }
+    
+    public CallTree buildTree(String file){
+    	
+        String line;
+        String[] sourceAndTarget;
+        String[] sourceClassMethod;
+        String[] targetClassMethod;
+      	CallTree tree = new CallTree();
+      	
+        try {
+			br = new BufferedReader(new FileReader(file));        	
+			while ((line = br.readLine()) != null){
+				//Splits each line into Source and Target
+				//Then splits each of those into Class and Method
+				sourceAndTarget = line.split("\\s");
+				sourceClassMethod = sourceAndTarget[0].split(":");
+				targetClassMethod = sourceAndTarget[1].split(":");
+
+				//Builds up the tree used by GSON to create the JSON
+				tree.addMethod(sourceClassMethod[2]);
+				tree.addMethod(targetClassMethod[1]);
+				tree.addClass(sourceClassMethod[1]);
+				tree.addClass(targetClassMethod[0].split("\\)")[1]);
+				tree.addMethodToClass(sourceClassMethod[1], sourceClassMethod[2]);
+				tree.addMethodToClass(targetClassMethod[0].split("\\)")[1], targetClassMethod[1]);
+				tree.addConnection(sourceClassMethod[2], targetClassMethod[1]);
+            	
+			}
+			br.close();
+			} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return tree;            
     }
 
 
