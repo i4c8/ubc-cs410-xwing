@@ -40,7 +40,7 @@ d3.json("graph.json", function(json) {
     .enter().append("svg:line");
 
   var node = svg.selectAll("circle")
-      .data(json.nodes)
+      .data(json.methods)
     .enter().append("svg:circle")
       .attr("r", r - .75)
       .style("fill", function(d) { return fill(d.group); })
@@ -48,7 +48,7 @@ d3.json("graph.json", function(json) {
       .call(force.drag);
 
   force
-      .nodes(json.nodes)
+      .methods(json.methods)
       .links(json.links)
       .on("tick", tick)
       .start();
