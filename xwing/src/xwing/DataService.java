@@ -33,6 +33,7 @@ public class DataService {
 			list[0] = result.getName();
 			CallgraphParser parser = new CallgraphParser();
 			// Consider changing parser to accept files rather than file names?
+			System.out.println("Passing " + result.getName() + " to parser.");
 			parser.parseList(list);
 			
 		} catch (IOException e) {
