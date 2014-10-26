@@ -1,4 +1,4 @@
-package xwing;
+package calltree;
 
 public class CallTreeLinks {
 	int source;

@@ -1,4 +1,4 @@
-package xwing;
+package test;
 
 import static org.junit.Assert.*;
 
@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.HashSet;
 
 import org.junit.Test;
+
+import calltree.CallgraphParser;
 
 /*
  * All Tests automatic save for the last which has instructions to manually performed
