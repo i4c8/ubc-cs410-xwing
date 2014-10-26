@@ -3,6 +3,7 @@ package xwing;
 import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,6 +33,8 @@ public class CallGraphParserTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+        File toDelete = new File("temp10");
+        toDelete.delete();
 
 	}
 	
@@ -54,7 +57,8 @@ public class CallGraphParserTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+        File toDelete = new File("temp11");
+        toDelete.delete();
 	}
 	
 	/*
@@ -81,6 +85,8 @@ public class CallGraphParserTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+        File toDelete = new File("temp12.classes");
+        toDelete.delete();
 	}
 	
 	@Test
@@ -95,6 +101,8 @@ public class CallGraphParserTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+        File toDelete = new File("temp12.methods");
+        toDelete.delete();
 	}
 
 	/*
