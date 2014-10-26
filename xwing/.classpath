@@ -9,5 +9,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/javacg-0.1-SNAPSHOT-static.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jgit-3.5.1.201410131835-r.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

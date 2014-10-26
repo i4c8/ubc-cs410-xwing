@@ -2,138 +2,85 @@ package xwing;
 
 import java.util.ArrayList;
 
-/**
- * Created by Alex on 2014-10-24.
- */
-public class CallTree {
-    private ArrayList nodes;
-    private ArrayList links;
-    private ArrayList classes;
 
-    public CallTree() {
-        nodes = new ArrayList();
-        links = new ArrayList();
-        classes = new ArrayList();
-    }
+public class CallTree{
+	private ArrayList<CallTreeNodes> nodes;
+	private ArrayList<CallTreeLinks> links;
+	private ArrayList<CallTreeClasses> classes;
+	
+	public CallTree(){
+		nodes = new ArrayList<CallTreeNodes>();
+		links = new ArrayList<CallTreeLinks>();
+		classes = new ArrayList<CallTreeClasses>();
+	}
+	
+	/*
+	 * @param String name = name of method to add
+	 * If method is not already contained in nodes, than adds method to nodes
+	 */
+	public void addMethod(String name) {
+		if (!nodes.contains(new CallTreeNodes(name))){
+			nodes.add(new CallTreeNodes(name));
+		}	
+	}
+	
+	public ArrayList<CallTreeNodes> getMethods(){
+		return nodes;
+	}
 
+	/*
+	 * @param String name = name of class to add
+	 * If class is not already contained in classes, then adds class to classes
+	 */
+	public void addClass(String name) {
+		if (!classes.contains(new CallTreeClasses(name))){
+			classes.add(new CallTreeClasses(name));
+		}	
+	}
+	
+	public ArrayList<CallTreeClasses> getClasses(){
+		return classes;
+	}
 
-    public void addMethod(String method) {
-        methodNode toAdd = new methodNode(method);
-        boolean add = true;
-        for (Object method1 : nodes) {
-            methodNode toTest = (methodNode) method1;
-            if (toAdd.equals(toTest)) {
-                add = false;
-            }
-        }
-        if (add) {
-            nodes.add(toAdd);
-        }
-    }
+	/*
+	 * @param String className = name of the class to add the method to
+	 * @param String methodName = name of the method to add to the class
+	 */
+	public void addMethodToClass(String className, String methodName) {
+		if (classes.contains(new CallTreeClasses(className))){
+			if (nodes.contains(new CallTreeNodes(methodName))){
+				int methodIndex = this.getMethods().indexOf(new CallTreeNodes(methodName));
+				int classIndex = this.getClasses().indexOf(new CallTreeClasses(className));
+				if (!this.getClasses().get(classIndex).getMethods().contains(methodIndex)){
+					this.getClasses().get(classIndex).addMethod(methodIndex);
+				}
+			}
+		}
+	}
 
-    public void addClass(String className) {
-        classNode toAdd = new classNode(className);
-        boolean add = true;
-        for (Object aClass : classes) {
-            classNode toTest = (classNode) aClass;
-            if (toAdd.equals(toTest)) {
-                add = false;
-            }
-        }
-        if (add) {
-            classes.add(toAdd);
-        }
-    }
-
-    public void addConnection(String method1, String method2){
-        int index1 = nodes.indexOf(method1);
-        int index2 = nodes.indexOf(method2);
-        for (int i=0; i<nodes.size(); i++){
-            methodNode toTest = (methodNode) nodes.get(i);
-            if (toTest.getName().equals(method1)) {
-                index1 = i;
-            }
-            if (toTest.getName().equals(method2)) {
-                index2 = i;
-            }
-        }
-        links.add(new connectionNode(index1, index2));
-    }
-
-    public void addMethodToClass(String className, String methodName) {
-
-        int methodIndex = -1;
-        int classIndex = -1;
-        for (int i=0; i<nodes.size(); i++){
-            methodNode toTest = (methodNode) nodes.get(i);
-            if (toTest.getName().equals(methodName)) {
-                methodIndex = i;
-                break;
-            }
-        }
-
-        for (int i=0; i<classes.size(); i++){
-            classNode toTest = (classNode) classes.get(i);
-            if (toTest.getName().equals(className)) {
-                classIndex = i;
-                break;
-            }
-        }
-
-        if ((classIndex >= 0)&&(methodIndex >= 0)){
-            classNode toEdit = (classNode) classes.get(classIndex);
-            toEdit.addMethod(methodIndex);
-        }
-
-    }
-
-    private class methodNode {
-        String name;
-
-        public methodNode(String methodName){
-            name = methodName;
-        }
-
-        public boolean equals(methodNode toCompare){
-            return (toCompare.getName().equals(name));
-        }
-
-        public String getName(){
-            return name;
-        }
-    }
-
-    private class connectionNode {
-        int source;
-        int target;
-
-        public connectionNode(int source, int target){
-            this.source = source;
-            this.target = target;
-        }
-    }
-
-    private class classNode {
-        String name;
-        ArrayList<Integer> contains;
-
-        public classNode(String className) {
-            name = className;
-            contains = new ArrayList<Integer>();
-        }
-
-        public void addMethod(int methodLocation) {
-            if (!contains.contains(methodLocation)) {
-                contains.add(methodLocation);
-            }
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean equals(classNode toCompare){
-            return(toCompare.getName().equals(name));
-        }
-    }
+	/*
+	 * @param String m1Name = name of the first method
+	 * @param String m2Name = name of the second method
+	 */
+	public void addConnection(String m1Name, String m2Name) {
+		int m1Index = -1;
+		int m2Index = -1;
+		if (nodes.contains(new CallTreeNodes(m1Name))){
+			m1Index = this.getMethods().indexOf(new CallTreeNodes(m1Name));
+		}
+		if (nodes.contains(new CallTreeNodes(m2Name))){
+			m2Index = this.getMethods().indexOf(new CallTreeNodes(m2Name));
+		}
+		if (m1Index >= 0 && m2Index >= 0){
+			if (!this.getLinks().contains(new CallTreeLinks(m1Index, m2Index))){
+				links.add(new CallTreeLinks(m1Index, m2Index));
+			}
+		}
+	}
+	
+	public ArrayList<CallTreeLinks> getLinks(){
+		return links;
+	}
+	
+	
 }
