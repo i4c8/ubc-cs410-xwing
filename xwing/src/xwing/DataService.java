@@ -5,12 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+
+import calltree.CallgraphParser;
+import crawl.Crawler;
 import gr.gousiosg.javacg.stat.JCallGraph;
-import org.eclipse.jgit.*;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 
 
 public class DataService {
@@ -24,19 +22,24 @@ public class DataService {
 		//	in the runtime arguments, build from here.
 		//System.out.println("Specify .jar name: ");
 		
+		//This is a naive/mock version of what our program will do when ran.
 		// Call java-callgraph
 		try {
 			
 			File result = runCallGraph(args, "result.txt");
-			//System.out.print("\r\n\r\n" + "printing Results: ");
-			//System.out.println(result);
+			// We've got a file with the results of a call to java-callgraph
+			// Pass it to the parsing stage to make JSON object files
+			String[] list = new String[1];
+			list[0] = result.getName();
+			CallgraphParser parser = new CallgraphParser();
+			// Consider changing parser to accept files rather than file names?
+			System.out.println("Passing " + result.getName() + " to parser.");
+			parser.parseList(list);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		// We've got a file with the results of a call to java-callgraph
-		// Now we do something with it...
 		
 	}
 	
@@ -73,30 +76,10 @@ public class DataService {
 	    } else
 	    	System.out.println("Error creating results file.");
 	    
+	    
 		return result;
 		
 	}
 	
-	//TODO
-	private static void getGit(){
-		//Repository repo;
-		Git git = new Git(null);
-	}
-	
-	private static void walkRepo(){
-		// TODO Figure out how to access the outside repo we want to analyze
-		Repository repo = null;
-		RevWalk walk = new RevWalk(repo);
-		
-		for(RevCommit commit : walk){
-			// TODO We need to compile the commit to a jar somehow and run it through callgraph
-			System.out.println("Commit name: " + commit.getName());
-		}
-		
-		// Cleanup
-		walk.dispose();
-	}
-	
-
 
 }
