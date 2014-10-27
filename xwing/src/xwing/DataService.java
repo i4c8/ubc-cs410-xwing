@@ -1,7 +1,13 @@
 package xwing;
 
+import java.awt.Desktop;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -34,14 +40,53 @@ public class DataService {
 			CallgraphParser parser = new CallgraphParser();
 			// Consider changing parser to accept files rather than file names?
 			System.out.println("Passing " + result.getName() + " to parser.");
-			parser.parseList(list);
+			String[] results = parser.parseList(list);
+			File htmlFile = new File(insertArgument(results));
+			Desktop.getDesktop().browse(htmlFile.toURI());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 	}
+	/**
+	 * This is quite Hacky, but inserts a line of the jsons to iterate through into html3		
+	 * @param toDisplay = the jsons to iterate through
+	 */
+	public static String insertArgument(String[] toDisplay){
+		//Builds the line we want added
+		String toAdd = "var jsons = [";
+		for (int i = 0; i<toDisplay.length; i++){
+			toAdd = toAdd.concat("\""+toDisplay[i]+"\", ");
+		}
+		toAdd = toAdd.substring(0,toAdd.length()-2);
+		toAdd = toAdd.concat("];");
+		
+		//Adds it
+		try {
+			String line;
+			BufferedReader br = new BufferedReader(new FileReader("web/index3.html"));
+			BufferedWriter bw = new BufferedWriter(new FileWriter("runthis.html"));
+			while ((line = br.readLine()) != null){
+				if (line.equals("<script>")){
+					bw.write(line);
+					bw.newLine();
+					bw.write(toAdd);
+					bw.newLine();
+				}
+				else bw.write(line);
+				bw.newLine();
+			}
+			br.close();
+			bw.close();
+		} catch (IOException e) {
+
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "runthis.html";
+	}	
+
 	
 	/**
 	 * @param args

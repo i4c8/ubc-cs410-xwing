@@ -50,17 +50,15 @@ var svg = d3.select("body").append("svg")
 var node = svg.selectAll(".node"),
     link = svg.selectAll(".link");
 
-d3.json("result0.json", function(json) {
-    update(json);
- });
+jsons.forEach( function(d) { run(d); });
 
-setTimeout(function(){
-    d3.json("result1.json", function(json) {
+function run(input) {
+	setTimeout(function(){
+    d3.json(input, function(json) {
         update(json);
     });
- }, 15000);
-
-
+ }, 5000);
+}
 
 
 function zoom() {
@@ -145,3 +143,4 @@ Array.prototype.uniqueLinks = function() {
 };
 
 </script>
+
