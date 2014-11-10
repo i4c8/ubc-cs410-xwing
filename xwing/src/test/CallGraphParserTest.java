@@ -74,7 +74,6 @@ public class CallGraphParserTest {
 		this.testClasses();
 	}
 	
-	@Test
 	public void testClasses() {
 		String line;
 		try {
@@ -90,7 +89,6 @@ public class CallGraphParserTest {
         toDelete.delete();
 	}
 	
-	@Test
 	public void testMethods() {
 		String line;
 		try {

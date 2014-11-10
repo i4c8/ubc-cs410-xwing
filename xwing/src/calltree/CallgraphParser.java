@@ -17,7 +17,7 @@ public class CallgraphParser implements Parser<Object> {
     public CallgraphParser(){
     }
 
-    //Takes a list of callGraphs to parse, returns the full JSON of the first, and any new links in the next
+    //Takes a list of callGraphs to parse, returns the full JSON of each input
     //@return String[i] = fileName of JSON of links added in i'th step
     public String[] parseList(String[] toParse){
         String[] result = new String[toParse.length];
@@ -71,13 +71,13 @@ public class CallgraphParser implements Parser<Object> {
 				targetClassMethod = sourceAndTarget[1].split(":");
 
 				//Builds up the tree used by GSON to create the JSON
-				baseTree.addMethod(sourceClassMethod[2]);
-				baseTree.addMethod(targetClassMethod[1]);
+				baseTree.addMethod(sourceClassMethod[1].concat(":").concat(sourceClassMethod[2]));
+				baseTree.addMethod(targetClassMethod[0].split("\\)")[1].concat(":").concat(targetClassMethod[1]));
 				baseTree.addClass(sourceClassMethod[1]);
 				baseTree.addClass(targetClassMethod[0].split("\\)")[1]);
-				baseTree.addMethodToClass(sourceClassMethod[1], sourceClassMethod[2]);
-				baseTree.addMethodToClass(targetClassMethod[0].split("\\)")[1], targetClassMethod[1]);
-				baseTree.addConnection(sourceClassMethod[2], targetClassMethod[1]);
+				baseTree.addMethodToClass(sourceClassMethod[1] ,sourceClassMethod[1].concat(":").concat(sourceClassMethod[2]));
+				baseTree.addMethodToClass(targetClassMethod[0].split("\\)")[1] ,targetClassMethod[0].split("\\)")[1].concat(":").concat(targetClassMethod[1]));
+				baseTree.addConnection(sourceClassMethod[1].concat(":").concat(sourceClassMethod[2]), targetClassMethod[0].split("\\)")[1].concat(":").concat(targetClassMethod[1]));
             	
 			}
 			br.close();
@@ -116,7 +116,6 @@ public class CallgraphParser implements Parser<Object> {
 			bw.write(jsonOutput);
 			bw.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -142,13 +141,13 @@ public class CallgraphParser implements Parser<Object> {
 				targetClassMethod = sourceAndTarget[1].split(":");
 
 				//Builds up the tree used by GSON to create the JSON
-				tree.addMethod(sourceClassMethod[2]);
-				tree.addMethod(targetClassMethod[1]);
+				tree.addMethod(sourceClassMethod[1].concat(":").concat(sourceClassMethod[2]));
+				tree.addMethod(targetClassMethod[0].split("\\)")[1].concat(":").concat(targetClassMethod[1]));
 				tree.addClass(sourceClassMethod[1]);
 				tree.addClass(targetClassMethod[0].split("\\)")[1]);
-				tree.addMethodToClass(sourceClassMethod[1], sourceClassMethod[2]);
-				tree.addMethodToClass(targetClassMethod[0].split("\\)")[1], targetClassMethod[1]);
-				tree.addConnection(sourceClassMethod[2], targetClassMethod[1]);
+				tree.addMethodToClass(sourceClassMethod[1] ,sourceClassMethod[1].concat(":").concat(sourceClassMethod[2]));
+				tree.addMethodToClass(targetClassMethod[0].split("\\)")[1] ,targetClassMethod[0].split("\\)")[1].concat(":").concat(targetClassMethod[1]));
+				tree.addConnection(sourceClassMethod[1].concat(":").concat(sourceClassMethod[2]), targetClassMethod[0].split("\\)")[1].concat(":").concat(targetClassMethod[1]));
             	
 			}
 			br.close();
@@ -203,7 +202,7 @@ public class CallgraphParser implements Parser<Object> {
             BufferedWriter bw2 = new BufferedWriter(new FileWriter(fileNames[1]));
             while ((line = br.readLine()) != null){
                 if (line.charAt(0)=='M'){
-                    bw.write(line+"\n");
+                    bw.write(line + "\n");
                 }
                 else {
                     bw2.write(line + "\n");

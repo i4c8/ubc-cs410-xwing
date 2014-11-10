@@ -43,7 +43,6 @@ public class DataService {
 			String[] results = parser.parseList(list);
 			File htmlFile = new File(insertArgument(results));
 			Desktop.getDesktop().browse(htmlFile.toURI());
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
