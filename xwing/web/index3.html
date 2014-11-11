@@ -4,7 +4,12 @@
 <style>
 
 .link {
+<<<<<<< HEAD
   stroke-width: 0.25px;
+=======
+  stroke: #ccc;
+  stroke-width: 0.5px;
+>>>>>>> refs/remotes/origin/master
 }
 
 .node:not(:hover) .name {
@@ -32,6 +37,13 @@ var jsons = ['result0.json','result1.json'];
 
 var init = false;
 
+//Uncomment me to test display the two default jsons
+//Comment me before running DataService
+//var jsons = ['result0.json','result1.json'];
+
+
+var init = false;
+
 var fill = d3.scale.category20();
 
 var colorIndex = 0;
@@ -45,6 +57,7 @@ var nodes = [],
     oldLinks = [];
 
 var svg = d3.select("body").append("svg")
+<<<<<<< HEAD
     .attr("viewBox", "0, 0, 1280, 720")
     .attr("preserveAspectRatio", "xMidYMid meet")
     .call(d3.behavior.zoom().on("zoom", zoom));
@@ -59,10 +72,26 @@ var force = d3.layout.force()
     .size([width, height])
 
     .on("tick", tick);
+=======
+    .attr("width", width)
+    .attr("height", height)
+    .call(d3.behavior.zoom().on("zoom", zoom));
+>>>>>>> refs/remotes/origin/master
+
+var force = d3.layout.force()
+
+    .nodes(nodes)
+    .links(links)
+    .charge(-300)
+    .distance(128)
+    .size([width, height])
+
+    .on("tick", tick);
 
 var node = svg.selectAll(".node"),
     link = svg.selectAll(".link");
 
+<<<<<<< HEAD
 for (i = 0; i<jsons.length; i++){
     if (i===0){
       create(jsons[0]);
@@ -70,6 +99,25 @@ for (i = 0; i<jsons.length; i++){
     else {
       update(jsons[i]);
     }
+=======
+jsons.forEach(function(d) { run(d); });
+
+function run(input) {
+  if (init === false){
+      d3.json(input, function(json) {
+        update(json);
+      });
+      init = true;
+  }
+  else {
+    setTimeout(function(){
+      d3.json(input, function(json) {
+      colorIndex++;
+      update(json);
+      });
+    }, 7500);
+  }
+>>>>>>> refs/remotes/origin/master
 }
 
 
@@ -92,6 +140,7 @@ function create(json){
 }
 
 function update(json){
+<<<<<<< HEAD
     setTimeout(function(){
       d3.json(json, function(json) {
         newNodes = force.nodes().concat(json.nodes).uniqueNodes();
@@ -129,6 +178,16 @@ function darken(newLinks){
         b[i].style.fill = newFill;
       }
     }
+=======
+    newNodes = force.nodes().concat(json.nodes).uniqueNodes();
+    newLinks = force.links().concat(json.links).uniqueLinks();
+    newNodes.forEach(function(d) { nodes.push(d);});
+    newLinks.forEach(function(d) { links.push(d);});
+
+    start();
+
+
+>>>>>>> refs/remotes/origin/master
 }
 
 function start() {
@@ -146,8 +205,13 @@ function start() {
     .append("circle")
     .attr("class", function(d) { return "node " + d.name; })
     .attr("r", r - 0.75)
+<<<<<<< HEAD
     .style("fill", d3.rgb(colorList[colorIndex]).darker())
     .style("stroke", d3.rgb(colorList[colorIndex]))
+=======
+    .style("fill", d3.rgb(colorList[colorIndex]))
+    .style("stroke", d3.rgb(colorList[colorIndex]).darker())
+>>>>>>> refs/remotes/origin/master
     .append("svg:title")
     .text(function(d) { return d.name; } );
   node.exit().remove();
