@@ -1,6 +1,7 @@
 package crawl;
 
 import java.awt.List;
+import java.io.File;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
@@ -29,17 +30,26 @@ public class Crawler {
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
 			
+			String commitName = commit.getName();
+			try {
+				File commitJar = new File(commitName + ".jar");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			// TODO: (1) shove all directories and java files into JAR
 			// 				Refer to: 	https://stackoverflow.com/questions/2977663/java-code-to-create-a-jar-file
 			//							http://www.java2s.com/Code/Java/File-Input-Output/CreateJarfile.htm (using java.util.jar)
 			//					(refer to these if JarHelper doesn't work)
+			
+			
 			
 			// TODO: (2) get author of commit and JAR filename, and add to a list
 
 			String authorName = commit.getAuthorIdent().getName();
 			authJar.add("[ " + authorName + ", " +" ]");
 			
-			System.out.println("Commit name: " + commit.getName());
+			System.out.println("Commit name: " + commitName);
 		}
 		
 		// Cleanup
