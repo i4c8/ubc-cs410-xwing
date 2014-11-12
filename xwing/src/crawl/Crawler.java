@@ -35,7 +35,9 @@ public class Crawler {
 			//					(refer to these if JarHelper doesn't work)
 			
 			// TODO: (2) get author of commit and JAR filename, and add to a list
-			authJar.add("[ " + commit.getAuthorIdent().getName() + ", " +" ]");
+
+			String authorName = commit.getAuthorIdent().getName();
+			authJar.add("[ " + authorName + ", " +" ]");
 			
 			System.out.println("Commit name: " + commit.getName());
 		}
