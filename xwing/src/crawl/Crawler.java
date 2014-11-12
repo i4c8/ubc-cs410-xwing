@@ -31,11 +31,7 @@ public class Crawler {
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
 			
 			String commitName = commit.getName();
-			try {
-				File commitJar = new File(commitName + ".jar");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			newJar(commitName);
 			
 			// TODO: (1) shove all directories and java files into JAR
 			// 				Refer to: 	https://stackoverflow.com/questions/2977663/java-code-to-create-a-jar-file
@@ -56,6 +52,19 @@ public class Crawler {
 		walk.dispose();
 		
 		// TODO: (3) return above said list
+	}
+	
+	/**
+	 * Creates an empty JAR file
+	 * 
+	 * @param filename	filename of JAR to be created
+	 */
+	private static void newJar(String filename) {
+		try {
+			File commitJar = new File(filename + ".jar");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
