@@ -25,10 +25,17 @@ public class Crawler {
 		
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
+			
+			// TODO: (1) compile commit into JAR
+			
+			// TODO: (2) get author of commit and JAR filename, and add to a list
+			
 			System.out.println("Commit name: " + commit.getName());
 		}
 		
 		// Cleanup
 		walk.dispose();
+		
+		// TODO: (3) return above said list
 	}
 }
