@@ -26,7 +26,10 @@ public class Crawler {
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
 			
-			// TODO: (1) compile commit into JAR
+			// TODO: (1) shove all directories and java files into JAR
+			// 				Refer to: 	https://stackoverflow.com/questions/2977663/java-code-to-create-a-jar-file
+			//							http://www.java2s.com/Code/Java/File-Input-Output/CreateJarfile.htm (using java.util.jar)
+			//					(refer to these if JarHelper doesn't work)
 			
 			// TODO: (2) get author of commit and JAR filename, and add to a list
 			
@@ -38,4 +41,5 @@ public class Crawler {
 		
 		// TODO: (3) return above said list
 	}
+	
 }
