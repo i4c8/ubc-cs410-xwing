@@ -62,6 +62,7 @@ public class Crawler {
 	private static void newJar(String filename) {
 		try {
 			File commitJar = new File(filename + ".jar");
+			commitJar.createNewFile();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
