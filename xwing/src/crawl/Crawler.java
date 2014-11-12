@@ -1,5 +1,7 @@
 package crawl;
 
+import java.awt.List;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -22,6 +24,7 @@ public class Crawler {
 	public static void walkRepo(Repository repo){
 		// TODO Figure out how to access the outside repo we want to analyze
 		RevWalk walk = new RevWalk(repo);
+		List authJar = new List();
 		
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
@@ -32,6 +35,7 @@ public class Crawler {
 			//					(refer to these if JarHelper doesn't work)
 			
 			// TODO: (2) get author of commit and JAR filename, and add to a list
+			authJar.add("[ " + commit.getAuthorIdent().getName() + ", " +" ]");
 			
 			System.out.println("Commit name: " + commit.getName());
 		}
