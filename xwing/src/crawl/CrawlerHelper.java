@@ -14,12 +14,12 @@ public class CrawlerHelper {
 
 	/**
 	 * Adds an InputStream to a JAR file
-	 * @param fileTree
-	 * @param id 
-	 * @param inStream
+	 * @param jarFile		JAR to add to
+	 * @param id 			
+	 * @param inStream		InputStream representing the file to be added
 	 */
-	public static void addStreamToJar(File jarFile, ObjectId id, InputStream inStream) {
-		String tempName = id.getName();
+	public static void addStreamToJar(File jarFile, String tempName, InputStream inStream) {
+//		String tempName = id.getName();
 		
 		File fileToAdd = null;
 		
@@ -36,12 +36,12 @@ public class CrawlerHelper {
 		try {
 			Files.delete(fileToAdd.toPath());
 		} catch (IOException e) {
+			System.err.println("Couldn't delete temp file!");
 			e.printStackTrace();
 		} catch (NullPointerException n) {
 			System.err.println("inStream was never converted to a File.");
 		}
 	}
-	
 	
 	
 	/**

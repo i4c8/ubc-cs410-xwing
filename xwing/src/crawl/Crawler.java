@@ -21,6 +21,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.DepthWalk.Commit;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -57,8 +58,9 @@ public class Crawler {
 		RevWalk walk = new RevWalk(repo);
 		ArrayList<String> authJar = new ArrayList<String>();
 		
-		// add startpoints so that walk can be traversed
-		// stolen from http://dev.eclipse.org/mhonarc/lists/jgit-dev/msg00858.html
+		// add startpoints so that walk can be traversed.
+		// attempting to loop over walk otherwise will result in nothing happening.
+		// (http://dev.eclipse.org/mhonarc/lists/jgit-dev/msg00858.html)
 		for (Ref ref : repo.getAllRefs().values()) {
 			try {
 				walk.markStart( walk.parseCommit( (ref.getObjectId()) ));
@@ -88,17 +90,17 @@ public class Crawler {
 //			fileTreeWalk.setFilter(PathFilter.create(path));
 			
 			// recursively deal with every file in the commit
+//			addNextFile(fileTreeWalk, repo, commit);
 			while (fileTreeWalk.next()) {
 				ObjectId objectId = fileTreeWalk.getObjectId(0);
 				ObjectLoader loader = repo.open(commit.getId());
-				
-				// old stuff
-	//			if (!fileTreeWalk.next())
-	//				return null;
+				String fileName = fileTreeWalk.getNameString();
+				// (old stuff)
+//				if (!fileTreeWalk.next())
+//					return null;
 				
 				InputStream in = loader.openStream();
-				
-				CrawlerHelper.addStreamToJar(jarFile, objectId, in);
+				CrawlerHelper.addStreamToJar(jarFile, fileName, in);
 			}
 				
 			// (2) get author of commit and JAR filename, and add to a list	
@@ -106,7 +108,7 @@ public class Crawler {
 			
 			authJar.add("{" + authorName + "," + commitName +".jar}");
 			
-		}
+		} // end of going through each commit
 		
 		// Cleanup
 		walk.dispose();
@@ -131,6 +133,20 @@ public class Crawler {
 			return null;
 		}
 	}
+	
+//	private void addNextFile(TreeWalk fileTreeWalk, Repository repo, RevObject commit) {
+//		while (fileTreeWalk.next()) {
+//			ObjectId objectId = fileTreeWalk.getObjectId(0);
+//			ObjectLoader loader = repo.open(commit.getId());
+//			
+//			// (old stuff)
+////			if (!fileTreeWalk.next())
+////				return null;
+//			
+//			InputStream in = loader.openStream();
+//			CrawlerHelper.addStreamToJar(jarFile, objectId, in);
+//		}
+//	}
 	
 
 }
