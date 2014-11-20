@@ -28,9 +28,8 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 public class Crawler {
 	
-	public Crawler(Repository repo){
+	public Crawler(){
 		//
-		walkRepo(repo);
 	}
 	
 	//TODO

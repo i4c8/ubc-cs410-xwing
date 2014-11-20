@@ -25,9 +25,8 @@ import crawl.Crawler;
 
 public class CrawlerTest {
 
-public void crawlerTest() throws IOException{
+	public static void main(String[] args) throws IOException{
 
-	
 	//
 	File gitDir = new File("/Users/jimmyshi/git/ubc-cs410-xwing/xwing");
 	
@@ -38,7 +37,8 @@ public void crawlerTest() throws IOException{
 			  .build();
     // ... use the repository ...
 	//Crawler crawl = new Crawler(repo);
-	System.out.print(repo.getBranch());
+	Crawler crawl = new Crawler();
+	crawl.walkRepo(repo);
 	repo.close();
 	}
 }
