@@ -69,6 +69,8 @@ public class Crawler {
 			}	
 		}
 		
+		int i = 0;
+		
 		// go thru every commit
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
@@ -83,11 +85,14 @@ public class Crawler {
 //			//					(refer to these if JarHelper doesn't work)
 //
 //			/* http://stackoverflow.com/a/7427658 */
-//			RevTree fileTree = commit.getTree();
-//			
-//			TreeWalk fileTreeWalk = new TreeWalk(repo);
-//			fileTreeWalk.addTree(fileTree);
-//			fileTreeWalk.setRecursive(true);
+			RevTree fileTree = commit.getTree();
+			
+			TreeWalk fileTreeWalk = new TreeWalk(repo);
+			fileTreeWalk.addTree(fileTree);
+			fileTreeWalk.setRecursive(true);
+			while(fileTreeWalk.next()){
+				System.out.println("found: " + fileTreeWalk.getPathString());
+			}
 ////			fileTreeWalk.setFilter(PathFilter.create(path));
 //			
 //			// recursively deal with every file in the commit
@@ -109,6 +114,8 @@ public class Crawler {
 			
 			authJar.add("{" + authorName + "," + commitName +".jar}");
 			
+			i++;
+			
 		} // end of going through each commit
 		
 		// Cleanup
@@ -116,6 +123,7 @@ public class Crawler {
 		
 		// (3) return list of author-JAR pairs
 		System.out.println(authJar);
+		System.out.println("went through " + i + " commits");
 		return authJar;
 	}
 	
