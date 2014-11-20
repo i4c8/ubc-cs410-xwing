@@ -83,23 +83,14 @@ public class Crawler {
 	//				return null;
 				
 				InputStream in = loader.openStream();
-	
-				// Convert the above InputStream into a (temp) file so that it can be shoved into JarHelper (which creates the JAR)
-				String tempName = objectId.getName();
-				File fileToAdd = convertToTempFile(in, tempName);			
-				
-				JarHelper jh = new JarHelper();
-				fileTree.getType();
-				jh.jarDir(fileToAdd, jarFile);
-				
-				// cleanup temp file
-				Files.delete(fileToAdd.toPath());
-				
-				// (2) get author of commit and JAR filename, and add to a list	
-				String authorName = commit.getAuthorIdent().getName();
-				
-				authJar.add("{ " + authorName + "," + commitName +".jar }");
+				CrawlerHelper.addStreamToJar(jarFile, fileTree, objectId, in);
 			}
+				
+			// (2) get author of commit and JAR filename, and add to a list	
+			String authorName = commit.getAuthorIdent().getName();
+			
+			authJar.add("{ " + authorName + "," + commitName +".jar }");
+			
 		}
 		
 		// Cleanup
@@ -126,27 +117,5 @@ public class Crawler {
 		}
 	}
 	
-	/**
-	 * Converts an InputStream to a File.
-	 * 
-	 * (Mostly) stolen from http://www.mkyong.com/java/how-to-convert-inputstream-to-file-in-java/
-	 * 
-	 * @param is		the InputStream to convert
-	 * @param objectId 	object id for the InputStream
-	 * @return			File created from InputStream
-	 */
-	private File convertToTempFile(InputStream is, String objectId) throws IOException {
-		
-		File temp = File.createTempFile(objectId, null);
-		FileOutputStream outputStream = new FileOutputStream(temp);
-		
-		int read = 0;
-		byte[] bytes = new byte[1024];
-		
-		while ((read = is.read(bytes)) != -1) {
-			outputStream.write(bytes, 0, read);
-		}
-		
-		return temp;
-	}
+
 }
