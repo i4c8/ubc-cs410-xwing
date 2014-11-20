@@ -52,7 +52,7 @@ public class Crawler {
 	 * @throws CorruptObjectException
 	 * @throws IOException
 	 */
-	public ArrayList<String> walkRepo(Repository repo) throws MissingObjectException, IncorrectObjectTypeException, CorruptObjectException, IOException{
+	public ArrayList<String> walkRepo(Repository repo, String owner, String project) throws MissingObjectException, IncorrectObjectTypeException, CorruptObjectException, IOException{
 		// TODO Figure out how to access the outside repo we want to analyze
 		RevWalk walk = new RevWalk(repo);
 		ArrayList<String> authJar = new ArrayList<String>();
@@ -79,9 +79,12 @@ public class Crawler {
 			// Add authorname to list of author/jar pairs.
 			authJar.add(authName);
 			System.out.println("Commit Hash: " + commitName);
-			
+			// HARD CODED URLs and PATHS within!!!
+			// Will re-factor to accept a parameter instead if time, rather than having two different versions
+			// with a URL/path for each repository...
+
 			System.out.println("Starting Download...");
-			URL commitDownload =  new URL("https://github.com/gousiosg/java-callgraph/archive/" + commitName + ".zip");
+			URL commitDownload =  new URL("https://github.com/" + owner + "/" + project + "/archive/" + commitName + ".zip");
 			
 			HttpsURLConnection con = (HttpsURLConnection) commitDownload.openConnection();
 			
@@ -113,7 +116,7 @@ public class Crawler {
 			ZipFile zf = new ZipFile(commitZip);
 			File target = new File("TEMP");
 			ZipFileUtil.unzipFileIntoDirectory(zf, target);
-			File targetIn = new File("TEMP" + "\\" + "java-callgraph-" + commitName);
+			File targetIn = new File("TEMP" + "\\" + project + "-" + commitName);
 			
 			// cd to the directory of the unzipped source code (with inclujded POM for Maven)
 			// then install it (dir will be "target" inside respective source folder; java-callgraph jars

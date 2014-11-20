@@ -47,7 +47,8 @@ public class CrawlerTest {
 			  .build();
     // ... use the repository ...
 	Crawler crawl = new Crawler();
-	crawl.walkRepo(repo);
+	
+	crawl.walkRepo(repo, "gousiosg", "java-callgraph");
 	repo.close();
 	}
 	
