@@ -11,6 +11,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import calltree.CallgraphParser;
 import crawl.Crawler;
@@ -19,11 +23,44 @@ import gr.gousiosg.javacg.stat.JCallGraph;
 
 public class DataService {
 	
+	static ArrayList<String> authjar = new ArrayList<String>();
+	
 	/** MAIN METHOD
-	 * @param args - Specified .jar file at runtime in console. 
+	 * @param args - Specified git project name and author name
 	 */
 	public static void main(String[] args){
+		
 		System.out.println("Welcome to XWing!\r\n");
+		String auth = args[0];
+		String proj = args[1];
+		System.out.println("Running on Author: " + auth + " and project: " + proj);
+		
+		Crawler crawler = new Crawler();
+		// Open the directory of the local git repo
+		String repoPath = "/Users/" + System.getProperty("user.name") + "/git/" + proj + "/.git";
+		File gitDir = new File(repoPath);
+		
+		FileRepositoryBuilder builder = new FileRepositoryBuilder();
+		try {
+			
+			Repository repo = builder.setGitDir(gitDir)
+					  .readEnvironment() // scan environment GIT_* variables
+					  .findGitDir() // scan up the file system tree
+					  .build();
+			
+			// Call the crawler to iterate through each commit
+			System.out.println("Crawling repository: " + repoPath);
+			authjar = crawler.walkRepo(repo, auth, proj);
+			repo.close();
+			System.out.println("Finished crawling.");
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		/*
 		//	If we decide to specify within the program rather than
 		//	in the runtime arguments, build from here.
 		//System.out.println("Specify .jar name: ");
@@ -45,7 +82,7 @@ public class DataService {
 			Desktop.getDesktop().browse(htmlFile.toURI());
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} */
 
 	}
 	/**
@@ -92,7 +129,7 @@ public class DataService {
 	 * @return File with name fname containing the results of the java-callgraph call
 	 * @throws IOException
 	 */
-	private static File runCallGraph(String[] args, String fname) throws IOException{
+	public static void runCallGraph(String[] args, String fname) throws IOException{
 		System.out.println("Creating file: " + fname);
 		File result = new File(fname);
 		
@@ -121,7 +158,7 @@ public class DataService {
 	    	System.out.println("Error creating results file.");
 	    
 	    
-		return result;
+		//return result;
 		
 	}
 	

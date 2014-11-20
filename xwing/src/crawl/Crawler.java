@@ -2,12 +2,14 @@ package crawl;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -25,6 +27,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+
+import xwing.DataService;
 import crawl.ZipFileUtil;
 public class Crawler {
 	
@@ -38,6 +42,49 @@ public class Crawler {
 		Git git = new Git(repo);
 		
 		return git;
+	}
+	
+	// HARD CODED URLs and PATHS within!!!
+	// Will re-factor to accept a parameter instead if time, rather than having two different versions
+	// with a URL/path for each repository...
+	public void downloadCommit(String owner, String project, String commitName){
+		System.out.println("Starting Download...");
+		try {
+			URL commitDownload =  new URL("https://github.com/" + owner + "/" + project + "/archive/" + commitName + ".zip");
+			
+			HttpsURLConnection con = (HttpsURLConnection) commitDownload.openConnection();
+			
+			// Check for errors
+			int responseCode = con.getResponseCode();
+			InputStream inputStream;
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+			    inputStream = con.getInputStream();
+			} else {
+			    inputStream = con.getErrorStream();
+			}
+
+			OutputStream output = new FileOutputStream(commitName + ".zip");
+
+			// Process the response
+			byte[] buffer = new byte[8 * 1024]; // Or whatever
+			int bytesRead;
+			while ((bytesRead = inputStream.read(buffer)) > 0) {
+			    output.write(buffer, 0, bytesRead);
+			}
+
+			output.close();
+			inputStream.close();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Download Finished.");
 	}
 	
 	/**
@@ -79,36 +126,9 @@ public class Crawler {
 			// Add authorname to list of author/jar pairs.
 			authJar.add(authName);
 			System.out.println("Commit Hash: " + commitName);
-			// HARD CODED URLs and PATHS within!!!
-			// Will re-factor to accept a parameter instead if time, rather than having two different versions
-			// with a URL/path for each repository...
-
-			System.out.println("Starting Download...");
-			URL commitDownload =  new URL("https://github.com/" + owner + "/" + project + "/archive/" + commitName + ".zip");
 			
-			HttpsURLConnection con = (HttpsURLConnection) commitDownload.openConnection();
-			
-			// Check for errors
-			int responseCode = con.getResponseCode();
-			InputStream inputStream;
-			if (responseCode == HttpURLConnection.HTTP_OK) {
-			    inputStream = con.getInputStream();
-			} else {
-			    inputStream = con.getErrorStream();
-			}
-
-			OutputStream output = new FileOutputStream(commitName + ".zip");
-
-			// Process the response
-			byte[] buffer = new byte[8 * 1024]; // Or whatever
-			int bytesRead;
-			while ((bytesRead = inputStream.read(buffer)) > 0) {
-			    output.write(buffer, 0, bytesRead);
-			}
-
-			output.close();
-			inputStream.close();
-			System.out.println("Download Finished.");
+			//Obtain the archived files
+			downloadCommit(owner, project, commitName);
 			
 			// We've downloaded the archived version of the code
 			// Unzip the folder to a temp directory
@@ -136,8 +156,16 @@ public class Crawler {
 			
 			clh.run(mvnFilepath + " install", 1);
 			
-			//https://github.com/gousiosg/java-callgraph/archive/bf7276eca18543bbac91f6d3edd197604683297d.zip
+			String[] jarPath = new String[1];
+			jarPath[0] = "TEMP" + "\\" + project + "-" + commitName + "\\target" + "\\javacg-0.1-SNAPSHOT-dycg-agent.jar";
+			File jarTarget = new File(jarPath[0]);
 			
+			if(jarTarget.exists()){
+				DataService.runCallGraph(jarPath, "result" + i + ".txt");
+				i++;
+			}
+			
+			//https://github.com/gousiosg/java-callgraph/archive/bf7276eca18543bbac91f6d3edd197604683297d.zip
 			
 		} // end of going through each commit
 		
