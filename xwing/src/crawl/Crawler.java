@@ -1,8 +1,19 @@
 package crawl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.zip.ZipFile;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.CorruptObjectException;
@@ -14,7 +25,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-
+import crawl.ZipFileUtil;
 public class Crawler {
 	
 	public Crawler(){
@@ -62,28 +73,53 @@ public class Crawler {
 		// go thru every commit
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
-
 			
 			String commitName = commit.getName();
-//			File jarFile = newJar(commitName);
-//			
-//			// (1) shove all directories and java files into JAR
-//			// 				Refer to: 	https://stackoverflow.com/questions/2977663/java-code-to-create-a-jar-file
-//			//							http://www.java2s.com/Code/Java/File-Input-Output/CreateJarfile.htm (using java.util.jar)
-//			//					(refer to these if JarHelper doesn't work)
-//
-//			/* http://stackoverflow.com/a/7427658 */
-			RevTree fileTree = commit.getTree();
+			String authName = commit.getAuthorIdent().getName();
+			// Add authorname to list of author/jar pairs.
+			authJar.add(authName);
+			System.out.println("Commit Hash: " + commitName);
 			
-			TreeWalk fileTreeWalk = new TreeWalk(repo);
-			fileTreeWalk.addTree(fileTree);
-			fileTreeWalk.setRecursive(true);
-			while(fileTreeWalk.next()){
-				System.out.println("found: " + fileTreeWalk.getPathString());
+			System.out.println("Starting Download...");
+			URL commitDownload =  new URL("https://github.com/gousiosg/java-callgraph/archive/" + commitName + ".zip");
+			
+			HttpsURLConnection con = (HttpsURLConnection) commitDownload.openConnection();
+			
+			// Check for errors
+			int responseCode = con.getResponseCode();
+			InputStream inputStream;
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+			    inputStream = con.getInputStream();
+			} else {
+			    inputStream = con.getErrorStream();
 			}
+
+			OutputStream output = new FileOutputStream(commitName + ".zip");
+
+			// Process the response
+			byte[] buffer = new byte[8 * 1024]; // Or whatever
+			int bytesRead;
+			while ((bytesRead = inputStream.read(buffer)) > 0) {
+			    output.write(buffer, 0, bytesRead);
+			}
+
+			output.close();
+			inputStream.close();
+			System.out.println("Download Finished.");
 			
+			// We've downloaded the archived version of the code
+			// Unzip the folder to a temp directory
+			File commitZip = new File(commitName + ".zip");
+			ZipFile zf = new ZipFile(commitZip);
+			File target = new File("TEMP");
+			ZipFileUtil.unzipFileIntoDirectory(zf, target);
+			File targetIn = new File("TEMP" + "\\" + "java-callgraph-" + commitName);
+			
+			// cd to the directory of the unzipped source code (with inclujded POM for Maven)
+			// then install it (dir will be "target" inside respective source folder; java-callgraph jars
+			// contained within.
 			CmdLineHelper clh = new CmdLineHelper();
-			clh.cd(repo.getDirectory());
+			clh.cd(targetIn);
 			clh.openWindowsTerminal();
 			/*
 			 * Specify location of Maven executable here. Don't forget to escape the backslashes!
@@ -91,53 +127,20 @@ public class Crawler {
 			 * 
 			 * It goes without saying that Maven needs to be installed. Environment variables have no meaning here!
 			*/
-			String mvnFilepath = "\"D:\\Program Files\\apache-maven-3.2.3\\bin\\mvn.bat\"";
+			String mvnFilepath = "\"C:\\Program Files\\apache-maven-3.2.3\\bin\\mvn.bat\"";
 			
 			// BEFORE YOU COMPILE: pom.xml must have "<packaging>jar</packaging>" for output to jar.
 			
-			/* mvn compile, followed by mvn package
-			 * Exit codes are weird. Sometimes it's 1, sometimes it's 0. It might be a Windows/*nix thing.
-			 */
-			clh.run(mvnFilepath + " compile", 1);
-			clh.run(mvnFilepath + " package", 1);
+			clh.run(mvnFilepath + " install", 1);
 			
-			// rename compiled jar to a Git hash
-			File existingJar = new File(repo.getDirectory().toString() + "\\target\\" + repo.getDirectory() + ".jar");
-			File commitInJar = new File(commitName + ".jar");
-			existingJar.renameTo(commitInJar);
+			//https://github.com/gousiosg/java-callgraph/archive/bf7276eca18543bbac91f6d3edd197604683297d.zip
 			
-////			fileTreeWalk.setFilter(PathFilter.create(path));
-//			
-//			// recursively deal with every file in the commit
-////			addNextFile(fileTreeWalk, repo, commit);
-//			while (fileTreeWalk.next()) {
-//				ObjectId objectId = fileTreeWalk.getObjectId(0);
-//				ObjectLoader loader = repo.open(commit.getId());
-//				String fileName = fileTreeWalk.getNameString();
-//				// (old stuff)
-////				if (!fileTreeWalk.next())
-////					return null;
-//				
-//				InputStream in = loader.openStream();
-//				CrawlerHelper.addStreamToJar(jarFile, fileName, in);
-//			}
-				
-			// (2) get author of commit and JAR filename, and add to a list	
-			String authorName = commit.getAuthorIdent().getName();
-			String jarPath = commitName + ".jar";
-			
-			authJar.add("{" + authorName + "," + jarPath + "}");
-			
-			i++;
 			
 		} // end of going through each commit
 		
 		// Cleanup
 		walk.dispose();
 		
-		// (3) return list of author-JAR pairs
-		System.out.println(authJar);
-		System.out.println("went through " + i + " commits");
 		return authJar;
 	}
 	

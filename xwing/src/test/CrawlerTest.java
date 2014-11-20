@@ -38,7 +38,7 @@ public class CrawlerTest {
 	public static void main(String[] args) throws IOException{
 
 	//Replace file path with desired repository
-	File gitDir = new File("/Users/jimmyshi/git/ubc-cs410-xwing/.git");
+	File gitDir = new File("/Users/Adam/git/java-callgraph/.git");
 	
 	FileRepositoryBuilder builder = new FileRepositoryBuilder();
 	Repository repo = builder.setGitDir(gitDir)
