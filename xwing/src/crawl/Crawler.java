@@ -1,31 +1,19 @@
 package crawl;
 
-import jar.JarHelper;
-
-import java.awt.List;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.DepthWalk.Commit;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 public class Crawler {
 	
@@ -113,6 +101,11 @@ public class Crawler {
 			clh.run(mvnFilepath + " compile", 1);
 			clh.run(mvnFilepath + " package", 1);
 			
+			// rename compiled jar to a Git hash
+			File existingJar = new File(repo.getDirectory().toString() + "\\target\\" + repo.getDirectory() + ".jar");
+			File commitInJar = new File(commitName + ".jar");
+			existingJar.renameTo(commitInJar);
+			
 ////			fileTreeWalk.setFilter(PathFilter.create(path));
 //			
 //			// recursively deal with every file in the commit
@@ -131,9 +124,7 @@ public class Crawler {
 				
 			// (2) get author of commit and JAR filename, and add to a list	
 			String authorName = commit.getAuthorIdent().getName();
-			String jarPath = repo.getDirectory().toString() + "\\target\\" + repo.getDirectory() + ".jar";
-			
-
+			String jarPath = commitName + ".jar";
 			
 			authJar.add("{" + authorName + "," + jarPath + "}");
 			
@@ -150,23 +141,23 @@ public class Crawler {
 		return authJar;
 	}
 	
-	/**
-	 * Creates an empty JAR file.
-	 * 
-	 * @param filename	filename of JAR to be created, without the extension
-	 * @return			the newly-created JAR (returns null if IOException encountered)
-	 */
-	private File newJar(String filename) {
-		try {
-			File commitJar = new File(filename + ".jar");
-			commitJar.createNewFile();	
-			return commitJar;			
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
+//	/**
+//	 * Creates an empty JAR file.
+//	 * 
+//	 * @param filename	filename of JAR to be created, without the extension
+//	 * @return			the newly-created JAR (returns null if IOException encountered)
+//	 */
+//	private File newJar(String filename) {
+//		try {
+//			File commitJar = new File(filename + ".jar");
+//			commitJar.createNewFile();	
+//			return commitJar;			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
+//	
 //	private void addNextFile(TreeWalk fileTreeWalk, Repository repo, RevObject commit) {
 //		while (fileTreeWalk.next()) {
 //			ObjectId objectId = fileTreeWalk.getObjectId(0);
