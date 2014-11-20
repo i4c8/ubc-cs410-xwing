@@ -93,6 +93,26 @@ public class Crawler {
 			while(fileTreeWalk.next()){
 				System.out.println("found: " + fileTreeWalk.getPathString());
 			}
+			
+			CmdLineHelper clh = new CmdLineHelper();
+			clh.cd(repo.getDirectory());
+			clh.openWindowsTerminal();
+			/*
+			 * Specify location of Maven executable here. Don't forget to escape the backslashes!
+			 * Also, if quotes are not needed (i.e. no spaces within filepath), DO NOT add another set of quotes on the filepath!
+			 * 
+			 * It goes without saying that Maven needs to be installed. Environment variables have no meaning here!
+			*/
+			String mvnFilepath = "\"D:\\Program Files\\apache-maven-3.2.3\\bin\\mvn.bat\"";
+			
+			// BEFORE YOU COMPILE: pom.xml must have "<packaging>jar</packaging>" for output to jar.
+			
+			/* mvn compile, followed by mvn package
+			 * Exit codes are weird. Sometimes it's 1, sometimes it's 0. It might be a Windows/*nix thing.
+			 */
+			clh.run(mvnFilepath + " compile", 1);
+			clh.run(mvnFilepath + " package", 1);
+			
 ////			fileTreeWalk.setFilter(PathFilter.create(path));
 //			
 //			// recursively deal with every file in the commit
@@ -111,8 +131,11 @@ public class Crawler {
 				
 			// (2) get author of commit and JAR filename, and add to a list	
 			String authorName = commit.getAuthorIdent().getName();
+			String jarPath = repo.getDirectory().toString() + "\\target\\" + repo.getDirectory() + ".jar";
 			
-			authJar.add("{" + authorName + "," + commitName +".jar}");
+
+			
+			authJar.add("{" + authorName + "," + jarPath + "}");
 			
 			i++;
 			
