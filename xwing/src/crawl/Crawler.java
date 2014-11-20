@@ -73,35 +73,36 @@ public class Crawler {
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
 
+			
 			String commitName = commit.getName();
-			File jarFile = newJar(commitName);
-			
-			// (1) shove all directories and java files into JAR
-			// 				Refer to: 	https://stackoverflow.com/questions/2977663/java-code-to-create-a-jar-file
-			//							http://www.java2s.com/Code/Java/File-Input-Output/CreateJarfile.htm (using java.util.jar)
-			//					(refer to these if JarHelper doesn't work)
-
-			/* http://stackoverflow.com/a/7427658 */
-			RevTree fileTree = commit.getTree();
-			
-			TreeWalk fileTreeWalk = new TreeWalk(repo);
-			fileTreeWalk.addTree(fileTree);
-			fileTreeWalk.setRecursive(true);
-//			fileTreeWalk.setFilter(PathFilter.create(path));
-			
-			// recursively deal with every file in the commit
-//			addNextFile(fileTreeWalk, repo, commit);
-			while (fileTreeWalk.next()) {
-				ObjectId objectId = fileTreeWalk.getObjectId(0);
-				ObjectLoader loader = repo.open(commit.getId());
-				String fileName = fileTreeWalk.getNameString();
-				// (old stuff)
-//				if (!fileTreeWalk.next())
-//					return null;
-				
-				InputStream in = loader.openStream();
-				CrawlerHelper.addStreamToJar(jarFile, fileName, in);
-			}
+//			File jarFile = newJar(commitName);
+//			
+//			// (1) shove all directories and java files into JAR
+//			// 				Refer to: 	https://stackoverflow.com/questions/2977663/java-code-to-create-a-jar-file
+//			//							http://www.java2s.com/Code/Java/File-Input-Output/CreateJarfile.htm (using java.util.jar)
+//			//					(refer to these if JarHelper doesn't work)
+//
+//			/* http://stackoverflow.com/a/7427658 */
+//			RevTree fileTree = commit.getTree();
+//			
+//			TreeWalk fileTreeWalk = new TreeWalk(repo);
+//			fileTreeWalk.addTree(fileTree);
+//			fileTreeWalk.setRecursive(true);
+////			fileTreeWalk.setFilter(PathFilter.create(path));
+//			
+//			// recursively deal with every file in the commit
+////			addNextFile(fileTreeWalk, repo, commit);
+//			while (fileTreeWalk.next()) {
+//				ObjectId objectId = fileTreeWalk.getObjectId(0);
+//				ObjectLoader loader = repo.open(commit.getId());
+//				String fileName = fileTreeWalk.getNameString();
+//				// (old stuff)
+////				if (!fileTreeWalk.next())
+////					return null;
+//				
+//				InputStream in = loader.openStream();
+//				CrawlerHelper.addStreamToJar(jarFile, fileName, in);
+//			}
 				
 			// (2) get author of commit and JAR filename, and add to a list	
 			String authorName = commit.getAuthorIdent().getName();
@@ -114,6 +115,7 @@ public class Crawler {
 		walk.dispose();
 		
 		// (3) return list of author-JAR pairs
+		System.out.println(authJar);
 		return authJar;
 	}
 	
