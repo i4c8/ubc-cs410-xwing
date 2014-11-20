@@ -56,7 +56,7 @@ public class Crawler {
 		
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
-			
+
 			String commitName = commit.getName();
 			File jarFile = newJar(commitName);
 			
