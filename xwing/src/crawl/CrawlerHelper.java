@@ -9,17 +9,16 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.revwalk.RevTree;
 
 public class CrawlerHelper {
 
 	/**
 	 * Adds an InputStream to a JAR file
-	 * @param id
+	 * @param fileTree
 	 * @param id 
 	 * @param inStream
 	 */
-	public static void addStreamToJar(File jarFile, RevTree fileTree, ObjectId id, InputStream inStream) {
+	public static void addStreamToJar(File jarFile, ObjectId id, InputStream inStream) {
 		String tempName = id.getName();
 		
 		File fileToAdd = null;
@@ -28,7 +27,6 @@ public class CrawlerHelper {
 			fileToAdd = convertToTempFile(inStream, tempName);
 			
 			JarHelper jh = new JarHelper();
-			fileTree.getType();
 			jh.jarDir(fileToAdd, jarFile);
 		} catch (IOException e) {
 			e.printStackTrace();

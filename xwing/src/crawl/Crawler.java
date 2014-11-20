@@ -40,12 +40,25 @@ public class Crawler {
 		return git;
 	}
 	
+	/**
+	 * Creates a JAR of every commit in a repo.
+	 * 
+	 * @param repo	Repository to create a JAR From
+	 * 
+	 * @return	List of author-JAR filename pairs. Format: "{authorName,commitHash"}"
+	 * 
+	 * @throws MissingObjectException
+	 * @throws IncorrectObjectTypeException
+	 * @throws CorruptObjectException
+	 * @throws IOException
+	 */
 	public ArrayList<String> walkRepo(Repository repo) throws MissingObjectException, IncorrectObjectTypeException, CorruptObjectException, IOException{
 		// TODO Figure out how to access the outside repo we want to analyze
 		RevWalk walk = new RevWalk(repo);
 		ArrayList<String> authJar = new ArrayList<String>();
 		
-		// graciously stolen from http://dev.eclipse.org/mhonarc/lists/jgit-dev/msg00858.html
+		// add startpoints so that walk can be traversed
+		// stolen from http://dev.eclipse.org/mhonarc/lists/jgit-dev/msg00858.html
 		for (Ref ref : repo.getAllRefs().values()) {
 			try {
 				walk.markStart( walk.parseCommit( (ref.getObjectId()) ));
@@ -54,13 +67,14 @@ public class Crawler {
 			}	
 		}
 		
+		// go thru every commit
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
 
 			String commitName = commit.getName();
 			File jarFile = newJar(commitName);
 			
-			// TODO: (1) shove all directories and java files into JAR
+			// (1) shove all directories and java files into JAR
 			// 				Refer to: 	https://stackoverflow.com/questions/2977663/java-code-to-create-a-jar-file
 			//							http://www.java2s.com/Code/Java/File-Input-Output/CreateJarfile.htm (using java.util.jar)
 			//					(refer to these if JarHelper doesn't work)
@@ -71,9 +85,9 @@ public class Crawler {
 			TreeWalk fileTreeWalk = new TreeWalk(repo);
 			fileTreeWalk.addTree(fileTree);
 			fileTreeWalk.setRecursive(true);
-			
 //			fileTreeWalk.setFilter(PathFilter.create(path));
 			
+			// recursively deal with every file in the commit
 			while (fileTreeWalk.next()) {
 				ObjectId objectId = fileTreeWalk.getObjectId(0);
 				ObjectLoader loader = repo.open(commit.getId());
@@ -83,20 +97,21 @@ public class Crawler {
 	//				return null;
 				
 				InputStream in = loader.openStream();
-				CrawlerHelper.addStreamToJar(jarFile, fileTree, objectId, in);
+				
+				CrawlerHelper.addStreamToJar(jarFile, objectId, in);
 			}
 				
 			// (2) get author of commit and JAR filename, and add to a list	
 			String authorName = commit.getAuthorIdent().getName();
 			
-			authJar.add("{ " + authorName + "," + commitName +".jar }");
+			authJar.add("{" + authorName + "," + commitName +".jar}");
 			
 		}
 		
 		// Cleanup
 		walk.dispose();
 		
-		// (3) return above said list
+		// (3) return list of author-JAR pairs
 		return authJar;
 	}
 	
