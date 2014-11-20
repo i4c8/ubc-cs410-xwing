@@ -73,31 +73,33 @@ public class Crawler {
 			fileTreeWalk.setRecursive(true);
 			
 //			fileTreeWalk.setFilter(PathFilter.create(path));
-			if (!fileTreeWalk.next())
-				return null;
-			ObjectId objectId = fileTreeWalk.getObjectId(0);
-			ObjectLoader loader = repo.open(commit.getId());
 			
-			InputStream in = loader.openStream();
-
-			// Convert the above InputStream into a (temp) file so that it can be shoved into JarHelper (which creates the JAR)
-			String tempName = objectId.getName();
-			File fileToAdd = convertToTempFile(in, tempName);			
-			
-			JarHelper jh = new JarHelper();
-			fileTree.getType();
-			jh.jarDir(fileToAdd, jarFile);
-			
-			// cleanup temp file
-			Files.delete(fileToAdd.toPath());
-			
-			// (2) get author of commit and JAR filename, and add to a list
-
-			String authorName = commit.getAuthorIdent().getName();
-			
-			// Note: returning jarFile *might* be better idea?
-			authJar.add("{ " + authorName + "," + commitName +".jar }");
-			
+			while (fileTreeWalk.next()) {
+				ObjectId objectId = fileTreeWalk.getObjectId(0);
+				ObjectLoader loader = repo.open(commit.getId());
+				
+				// old stuff
+	//			if (!fileTreeWalk.next())
+	//				return null;
+				
+				InputStream in = loader.openStream();
+	
+				// Convert the above InputStream into a (temp) file so that it can be shoved into JarHelper (which creates the JAR)
+				String tempName = objectId.getName();
+				File fileToAdd = convertToTempFile(in, tempName);			
+				
+				JarHelper jh = new JarHelper();
+				fileTree.getType();
+				jh.jarDir(fileToAdd, jarFile);
+				
+				// cleanup temp file
+				Files.delete(fileToAdd.toPath());
+				
+				// (2) get author of commit and JAR filename, and add to a list	
+				String authorName = commit.getAuthorIdent().getName();
+				
+				authJar.add("{ " + authorName + "," + commitName +".jar }");
+			}
 		}
 		
 		// Cleanup
