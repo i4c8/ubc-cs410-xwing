@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Stack;
 import java.util.zip.ZipFile;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -117,6 +118,9 @@ public class Crawler {
 		
 		int i = 0;
 		
+		Stack<String> revAuth = new Stack<String>();
+		Stack<String> revName = new Stack<String>();
+		
 		// go thru every commit
 		for(RevCommit commit : walk){
 			// TODO We need to compile the commit to a jar somehow and run it through callgraph
@@ -124,11 +128,10 @@ public class Crawler {
 			String commitName = commit.getName();
 			String authName = commit.getAuthorIdent().getName();
 			// Add authorname to list of author/jar pairs.
-			authJar.add(authName);
+			//authJar.add(authName);
 			System.out.println("Commit Hash: " + commitName);
-			
 			//Obtain the archived files
-			downloadCommit(owner, project, commitName);
+			//downloadCommit(owner, project, commitName);
 			
 			// We've downloaded the archived version of the code
 			// Unzip the folder to a temp directory
@@ -156,12 +159,16 @@ public class Crawler {
 			
 			clh.run(mvnFilepath + " install", 1);
 			
+			String jcgJarName = "javacg-0.1-SNAPSHOT.jar";
+			
 			String[] jarPath = new String[1];
-			jarPath[0] = "TEMP" + "\\" + project + "-" + commitName + "\\target" + "\\javacg-0.1-SNAPSHOT-dycg-agent.jar";
+			jarPath[0] = "TEMP" + "\\" + project + "-" + commitName + "\\target" + "\\" + jcgJarName;
 			File jarTarget = new File(jarPath[0]);
 			
 			if(jarTarget.exists()){
 				DataService.runCallGraph(jarPath, "result" + i + ".txt");
+				revName.push("result" + i + ".txt");
+				revAuth.push(authName);
 				i++;
 			}
 			
@@ -171,6 +178,10 @@ public class Crawler {
 		
 		// Cleanup
 		walk.dispose();
+		
+		for(String s : revName){
+			authJar.add("{" + revAuth.pop() + "," + s + "}");
+		}
 		
 		return authJar;
 	}
