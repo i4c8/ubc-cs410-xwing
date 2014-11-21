@@ -57,7 +57,6 @@ public class DataService {
 				String[] temp = authjar.get(i).split(",");
 				authors[i] = temp[0];
 				jars[i] = temp[1];
-				i++;
 			}
 			
 			CallgraphParser parser = new CallgraphParser();

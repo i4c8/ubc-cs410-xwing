@@ -180,7 +180,8 @@ public class Crawler {
 		walk.dispose();
 		
 		for(String s : revName){
-			authJar.add("{" + revAuth.pop() + "," + s + "}");
+			//authJar.add("{" + revAuth.pop() + "," + s + "}");
+			authJar.add(revAuth.pop() + "," + s);
 		}
 		
 		return authJar;
