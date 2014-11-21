@@ -54,7 +54,11 @@ public class DataService {
 			System.out.println("Crawling repository: " + repoPath);
 			authjar = crawler.walkRepo(repo, auth, proj);
 			repo.close();
-			System.out.println("Finished crawling.");
+			System.out.println("Finished crawling.\r\n");
+			
+			for(String s : authjar){
+				System.out.println(s);
+			}
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -122,7 +126,7 @@ public class DataService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return "runthis.html";
+		return "web/runthis.html";
 	}	
 	
 	
