@@ -131,7 +131,7 @@ public class Crawler {
 			//authJar.add(authName);
 			System.out.println("Commit Hash: " + commitName);
 			//Obtain the archived files
-			//downloadCommit(owner, project, commitName);
+			downloadCommit(owner, project, commitName);
 			
 			// We've downloaded the archived version of the code
 			// Unzip the folder to a temp directory
@@ -153,7 +153,7 @@ public class Crawler {
 			 * 
 			 * It goes without saying that Maven needs to be installed. Environment variables have no meaning here!
 			*/
-			String mvnFilepath = "\"C:\\Program Files\\apache-maven-3.2.3\\bin\\mvn.bat\"";
+			String mvnFilepath = "C:\\Program Files\\Apache Software Foundation\\apache-maven-3.2.3\\bin\\mvn.bat";
 			
 			// BEFORE YOU COMPILE: pom.xml must have "<packaging>jar</packaging>" for output to jar.
 			

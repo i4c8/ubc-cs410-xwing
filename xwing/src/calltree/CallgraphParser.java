@@ -23,13 +23,13 @@ public class CallgraphParser implements Parser<Object> {
         String[] result = new String[toParse.length];
         for (int i=0; i<toParse.length; i++){
             if (i==0){
-            	baseTree = this.buildTree(this.splitClassesMethods(this.removeDuplicates(this.removeJava(toParse[i], i), i), i)[0]);
-                result[i] = this.callgraphToJSON(this.splitClassesMethods(this.removeDuplicates(this.removeJava(toParse[i], i), i), i)[0], i);
+            	baseTree = this.buildTree(this.splitClassesMethods(this.removeDuplicates(toParse[i], i), i)[0]);
+                result[i] = this.callgraphToJSON(this.splitClassesMethods(this.removeDuplicates(toParse[i], i), i)[0], i);
                 this.cleanUp(i);
             }
             else {
-                String file1 = this.splitClassesMethods(this.removeDuplicates(this.removeJava(toParse[i], i), i), i)[0];
-                String file2 = this.splitClassesMethods(this.removeDuplicates(this.removeJava(toParse[i-1], i-1), i-1), i-1)[0];
+                String file1 = this.splitClassesMethods(this.removeDuplicates(toParse[i], i), i)[0];
+                String file2 = this.splitClassesMethods(this.removeDuplicates(toParse[i-1], i-1), i-1)[0];
                 newTree = this.treeUpdate(this.added(file2, file1));
                 result[i] = this.callTreeToJSON(newTree, i);
                 this.cleanUp(i, i-1);

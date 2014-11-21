@@ -50,14 +50,13 @@ public class DataService {
 			
 			// Call the crawler to iterate through each commit
 			System.out.println("Crawling repository: " + repoPath);
-			authjar = crawler.walkRepo(repo, auth, proj); //{"name,result#.txt",....}
+			authjar = crawler.walkRepo(repo, auth, proj); //"{name,result#.txt}",....}
 			String[] authors = new String[authjar.size()];
 			String[] jars = new String[authjar.size()];
 			for (int i = 0; i<authjar.size(); i++){
 				String[] temp = authjar.get(i).split(",");
-				authors[i] = temp[0];
-				jars[i] = temp[1];
-				i++;
+				authors[i] = temp[0].substring(1);
+				jars[i] = temp[1].substring(0, temp[1].length() - 1);
 			}
 			
 			CallgraphParser parser = new CallgraphParser();
@@ -159,10 +158,10 @@ public class DataService {
 		//Builds the jsons we want added
 		String toAdd2 = "var jsons = [";
 		for (int i = 0; i<jsons.length; i++){
-			toAdd = toAdd.concat("\""+jsons[i]+"\", ");
+			toAdd2 = toAdd2.concat("\""+jsons[i]+"\", ");
 		}
-		toAdd = toAdd.substring(0,toAdd.length()-2);
-		toAdd = toAdd.concat("];");
+		toAdd2 = toAdd2.substring(0,toAdd2.length()-2);
+		toAdd2 = toAdd2.concat("];");
 		
 		//Adds it
 		try {
