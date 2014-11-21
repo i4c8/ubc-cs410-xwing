@@ -140,7 +140,7 @@ public class DataService {
 		//Builds the colorList we want added
 		String toAdd = "var colorList = [";
 		for (int i = 0; i<authors.length; i++){
-			toAdd = toAdd.concat("\""+authorColors.get(authors[i])+"\", ");
+			toAdd = toAdd.concat(authorColors.get(authors[i])+", ");
 		}
 		toAdd = toAdd.substring(0,toAdd.length()-2);
 		toAdd = toAdd.concat("];");
