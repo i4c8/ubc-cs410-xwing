@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -122,7 +124,95 @@ public class DataService {
 		}
 		return "runthis.html";
 	}	
+	
+	
+	public static String insertArguments(String[] authors, String[] jsons){
+		int usedColor = 0;
+		HashMap<String, String> authorColors = new HashMap<String, String>();
+		//Note there is only 30 distinct author colors before we begin repeating
+		String[] colorOptions = {"#36FADD",
+		                         "#F6132E",
+		                         "#6672F7",
+		                         "#FDE15B",
+		                         "#A6757E",
+		                         "#1EEB64",
+		                         "#DA178C",
+		                         "#368020",
+		                         "#ED52F6",
+		                         "#3883C4",
+		                         "#FD8F34",
+		                         "#D6FDB3",
+		                         "#BDE6E6",
+		                         "#0D8261",
+		                         "#F887B7",
+		                         "#D03D61",
+		                         "#F8C8BB",
+		                         "#8AC02E",
+		                         "#E7CDF0",
+		                         "#677868",
+		                         "#FFBB6B",
+		                         "#F26B59",
+		                         "#4CCE98",
+		                         "#9CA010",
+		                         "#ACFC5E",
+		                         "#D05623",
+		                         "#3CC860",
+		                         "#87F2EB",
+		                         "#41A892",
+		                         "#78E6A8"};
+		
+		//Builds a HashSet of Author/Color Pairs;\
+		for (int i = 0; i<authors.length; i++){
+			if (!authorColors.containsKey(authors[i])){
+				authorColors.put(authors[i], colorOptions[usedColor]);
+				if (usedColor == 29){
+					usedColor = 0;
+				}
+				else usedColor++;
+			}
+		}
+		//Builds the colorList we want added
+		String toAdd = "var colorList = [";
+		for (int i = 0; i<authors.length; i++){
+			toAdd = toAdd.concat("\""+authorColors.get(authors[i])+"\", ");
+		}
+		toAdd = toAdd.substring(0,toAdd.length()-2);
+		toAdd = toAdd.concat("];");
+		
+		//Builds the jsons we want added
+		String toAdd2 = "var jsons = [";
+		for (int i = 0; i<jsons.length; i++){
+			toAdd = toAdd.concat("\""+jsons[i]+"\", ");
+		}
+		toAdd = toAdd.substring(0,toAdd.length()-2);
+		toAdd = toAdd.concat("];");
+		
+		//Adds it
+		try {
+			String line;
+			BufferedReader br = new BufferedReader(new FileReader("web/index3.html"));
+			BufferedWriter bw = new BufferedWriter(new FileWriter("runthis.html"));
+			while ((line = br.readLine()) != null){
+				if (line.equals("<script>")){
+					bw.write(line);
+					bw.newLine();
+					bw.write(toAdd);
+					bw.newLine();
+					bw.write(toAdd2);
+					bw.newLine();
+				}
+				else bw.write(line);
+				bw.newLine();
+			}
+			br.close();
+			bw.close();
+		} catch (IOException e) {
 
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "runthis.html";
+	}	
 	
 	/**
 	 * @param args
