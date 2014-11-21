@@ -4,7 +4,6 @@ import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -13,7 +12,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -52,7 +50,20 @@ public class DataService {
 			
 			// Call the crawler to iterate through each commit
 			System.out.println("Crawling repository: " + repoPath);
-			authjar = crawler.walkRepo(repo, auth, proj);
+			authjar = crawler.walkRepo(repo, auth, proj); //{"name,result#.txt",....}
+			String[] authors = new String[authjar.size()];
+			String[] jars = new String[authjar.size()];
+			for (int i = 0; i<authjar.size(); i++){
+				String[] temp = authjar.get(i).split(",");
+				authors[i] = temp[0];
+				jars[i] = temp[1];
+				i++;
+			}
+			
+			CallgraphParser parser = new CallgraphParser();
+			String[] jsons = parser.parseList(jars);
+			File htmlFile = new File(insertArguments(authors, jsons));
+			Desktop.getDesktop().browse(htmlFile.toURI());
 			repo.close();
 			System.out.println("Finished crawling.\r\n");
 			
@@ -140,7 +151,7 @@ public class DataService {
 		//Builds the colorList we want added
 		String toAdd = "var colorList = [";
 		for (int i = 0; i<authors.length; i++){
-			toAdd = toAdd.concat(authorColors.get(authors[i])+", ");
+			toAdd = toAdd.concat("\""+authorColors.get(authors[i])+"\", ");
 		}
 		toAdd = toAdd.substring(0,toAdd.length()-2);
 		toAdd = toAdd.concat("];");

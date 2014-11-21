@@ -4,8 +4,7 @@
 <style>
 
 .link {
-  stroke: #ccc;
-  stroke-width: 0.5px;
+  stroke-width: 0.4px;
 }
 
 .node:not(:hover) .name {
@@ -13,32 +12,32 @@
 }
 
 circle {
-  stroke-width: 1.5px;
+  stroke-width: 0.65px;
 }
 
 </style>
-<body>
+<body bgcolor="black">
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-var jsons = ["result0.json"];
+var colorList =];
+var jsons = [
 
 
 
-var width = 1600,
-    height = 900,
-    r = 4;
+var width = 1280,
+    height = 720,
+    r = 2.25;
 
 //Uncomment me to test display the two default jsons
 //Comment me before running DataService
 //var jsons = ['result0.json','result1.json'];
-
+//var colorList = ['#36fadd','fuchsia','magenta','green','violet','orange'];
 
 var init = false;
-
-var fill = d3.scale.category20();
-
 var colorIndex = 0;
-var colorList = ['cyan','fuchsia','magenta','green','violet','orange'];
+
+//Number between 0-1 representing what percent you want to desaturate by
+var deSaturate = 0.8;
 
 var nodes = [],
     links = [],
@@ -48,41 +47,31 @@ var nodes = [],
     oldLinks = [];
 
 var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height)
+    .attr("viewBox", "0, 0, 1280, 720")
+    .attr("preserveAspectRatio", "xMidYMid meet")
     .call(d3.behavior.zoom().on("zoom", zoom));
 
 var force = d3.layout.force()
-
     .nodes(nodes)
     .links(links)
-    .charge(-300)
-    .distance(128)
+    .charge(-25)
+    .distance(20)
     .size([width, height])
-
     .on("tick", tick);
 
 var node = svg.selectAll(".node"),
     link = svg.selectAll(".link");
 
-jsons.forEach(function(d) { run(d); });
-
-function run(input) {
-  if (init === false){
-      d3.json(input, function(json) {
-        update(json);
-      });
-      init = true;
-  }
-  else {
-    setTimeout(function(){
-      d3.json(input, function(json) {
-      colorIndex++;
-      update(json);
-      });
-    }, 7500);
-  }
+for (i = 0; i<jsons.length; i++){
+    if (i===0){
+      create(jsons[0]);
+    }
+    else {
+      update(jsons[i]);
+    }
 }
+
+
 
 
 function zoom() {
@@ -90,15 +79,58 @@ function zoom() {
       "translate(" +d3.event.translate + ")" + " scale(" +d3.event.scale + ")");
 }
 
+function create(json){
+    d3.json(json, function(json) {
+      newNodes = force.nodes().concat(json.nodes).uniqueNodes();
+      newLinks = force.links().concat(json.links).uniqueLinks();
+      newNodes.forEach(function(d) { nodes.push(d);});
+      newLinks.forEach(function(d) { links.push(d);});
+      start();
+    });
+
+}
+
 function update(json){
-    newNodes = force.nodes().concat(json.nodes).uniqueNodes();
-    newLinks = force.links().concat(json.links).uniqueLinks();
-    newNodes.forEach(function(d) { nodes.push(d);});
-    newLinks.forEach(function(d) { links.push(d);});
+    setTimeout(function(){
+      d3.json(json, function(json) {
+        newNodes = force.nodes().concat(json.nodes).uniqueNodes();
+        newLinks = force.links().concat(json.links).uniqueLinks();
+        newNodes.forEach(function(d) { nodes.push(d);});
+        newLinks.forEach(function(d) { links.push(d);});
+        colorIndex++;
+        darken(newLinks);
+        start();
+      });
+    }, 10000);
+}
 
-    start();
-
-
+function darken(newLinks){
+    //Darkens all Links that already exist
+    a = svg.selectAll(".link")[0];
+    for (i = 0; i<a.length; i++){
+      newStroke = d3.hsl(a[i].style.stroke);
+      newStroke.s = newStroke.s * deSaturate;
+      a[i].style.stroke = newStroke;
+    }
+    //Darkens nodes that won't have a new link added to them
+    b = svg.selectAll("circle")[0];
+    for (i = 0; i<b.length; i++){
+      updated = false;
+      for (j = 0; j<newLinks.length; j++){
+        if (i === newLinks[j].source || i === newLinks[j].target){
+          updated = true;
+          break;
+        }
+      }
+      if (!updated) {
+        newStroke = d3.hsl(b[i].style.stroke);
+        newStroke.s = newStroke.s * deSaturate;
+        b[i].style.stroke = newStroke;
+        newFill = d3.hsl(b[i].style.stroke);
+        newFill.s = newFill.s * deSaturate;
+        b[i].style.fill = newFill;
+      }
+    }
 }
 
 function start() {
@@ -116,16 +148,21 @@ function start() {
     .append("circle")
     .attr("class", function(d) { return "node " + d.name; })
     .attr("r", r - 0.75)
-    .style("fill", d3.rgb(colorList[colorIndex]))
-    .style("stroke", d3.rgb(colorList[colorIndex]).darker())
+    .style("fill", d3.rgb(colorList[colorIndex]).darker())
+    .style("stroke", d3.rgb(colorList[colorIndex]))
     .append("svg:title")
     .text(function(d) { return d.name; } );
   node.exit().remove();
-
   force.start();
 }
 
 function tick() {
+
+  var k = 0.01;
+  nodes[0].y += (height/2 - nodes[0].y) * k;
+  nodes[0].x += (width/2 - nodes[0].x) * k;
+
+
   node.attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; });
 
